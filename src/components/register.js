@@ -1,57 +1,47 @@
 import React ,{useState} from 'react'
 import axios from 'axios'
+import { Redirect } from 'react-router';
 const Register = () => {
-    const [urlID] = useState('http://localhost:8080/BankingApp/idCheck');
-    const [urlUN] = useState('http://localhost:8080/BankingApp/usernameCheck');
-    const [id, setId] = useState();
-    const [idAccepted, setIdAccepted] = useState(false);
-    const [UNAccepted, setUNAccepted] = useState(false);
+    const [url] = useState('http://localhost:8080/BankingApp/register');
+    const [id, setId] = useState('');
+    const [name, setname] = useState('');
+    const [openingDate, setopeningDate] = useState('');
+    const [balance, setbalance] = useState(0);
+    const [isAdmin, setisAdmin] = useState(false);
+    const [isActive, setisActive] = useState(true);
     const [username, setUsername] = useState('');
-    // const [password, setPassword] = useState('');
-    // const [member, setMember] = useState(null);
-    const onClickIdCheck = async (event) => {
+    const [password, setpassword] = useState('');
+    const [cnfPassword, setcnfPassword] = useState('');
+    const [errMsg, seterrMsg] = useState('');
+    const [data, setdata] = useState([true, true]);
+    const [accepted, setaccepted] = useState(false);
+    
+    const onClickSubmit = async (event) => {
         event.preventDefault();
-        console.log("id = " + id);
-        if (id) {
+        if (password === cnfPassword) {
             await axios.post(
-                urlID, {
-                id
+                url, {
+                id,name,openingDate,balance,isAdmin,isActive,username,password
             }
             ).then((res) => {
                 console.log(res.data);
-                setIdAccepted(res.data);
-                    
+                setdata(res.data);
+                if (res.data[0] && res.data[1])
+                {
+                    console.log('id acc = '+res.data[0]+'\tun acc = '+res.data[1]);
+                    setaccepted(true);   
+                }
             }).catch((error) => {
                 console.log(error);
             });
         }
         else
         {
-            console.log("id is blank");
+            seterrMsg('Enter same password in both the box ');
         }
-        
     };
 
-    const onClickUNCheck = async (event) => {
-        event.preventDefault();
-        if (username === "") {
-            console.log("Enter valid string");
-        }
-        else {
-            console.log("username = " + username);
-            await axios.post(
-                urlUN, {
-                username
-            }
-            ).then((res) => {
-                console.log(res.data);
-                setUNAccepted(res.data);
-                    
-            }).catch((error) => {
-                console.log(error);
-            });
-        }
-    };
+    
 
     
 
@@ -61,27 +51,22 @@ const Register = () => {
     // };
     return (
         <div>
-            <div>
-                <input type='text' placeholder='Enter id' value={id} onChange={(event) => {
-                    setId(event.target.value);
-                    
-                    onClickIdCheck(event);
-                }} />
-                <button type='submit' onClick={onClickIdCheck}>check</button>
-            </div>
-            <div>
-                <p>Id availability = {String(idAccepted)}</p>
-            </div>
-            <div>
-                <input type='text' placeholder='Enter username' value={username} onChange={(event) => {
-                    setUsername(event.target.value);
-                    onClickUNCheck(event);
-                }} />
-                <button type = 'submit' onClick = {onClickUNCheck}>check</button>
-            </div>
-            <div>
-                <p>username availability = {String(UNAccepted)}</p>
-            </div>
+            <input type='text' placeholder='Enter id' value={id} onChange={(event) => setId(event.target.value)} />
+            {(data[0]) ? null : <div>This ID is not available</div>}
+            <br/>
+            <input type='text' placeholder='Enter username' value={username} onChange={(event) => setUsername(event.target.value)} />
+            {(data[1]) ? null : <div>This username is not available</div>}
+            <br/>
+            <input type='password' placeholder='Enter password' value={password} onChange={(event) => setpassword(event.target.value)} />
+            <input type='password' placeholder='Confirm Password' value={cnfPassword} onChange={(event) => setcnfPassword(event.target.value)} />
+            {(errMsg) ? <div>{errMsg}</div> : null}
+            <br />
+            <input type='text' placeholder='Enter name' value={name} onChange={(event) => setname(event.target.value)} />
+            <br />
+            <input type='text' placeholder='opening date YYYY-MM-DD' value={openingDate} onChange={(event) => setopeningDate(event.target.value)} />
+            <br/>
+            <button onClick={onClickSubmit}>Submit</button>
+            {accepted ? <Redirect to='/home' /> : null}
         </div>
     )
 }

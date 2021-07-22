@@ -8,11 +8,10 @@ function App() {
   return (
 	  <div className="App">
 		  <Router>
-			  <Redirect exact from = '/' to ='/home'/>
+			  <Redirect from = '/' to ='/home'/>
 			  <Route path='/home' exact component={home} />
-			  <Route path='/login' component={Login} />
+			  <Route path='/login' exact component={Login} />
 			  <Route path='/register' component={Register}/>
-			  {/* <Route path='/login' component={login}/> */}
 		  </Router>
 	  </div>
   );
